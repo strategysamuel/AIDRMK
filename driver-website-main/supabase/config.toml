@@ -1,0 +1,19 @@
+project_id = "vozhquixkiopiculmeir"
+
+[functions.register-with-pin]
+verify_jwt = false
+
+[functions.login-with-pin]
+verify_jwt = false
+
+[functions.send-pin-reset-otp]
+verify_jwt = false
+
+[functions.verify-and-reset-pin]
+verify_jwt = false
+
+[functions.validate-document-type]
+verify_jwt = false
+
+[functions.extract-kyc-data]
+verify_jwt = false

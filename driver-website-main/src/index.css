@@ -1,0 +1,227 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-bold text-foreground tracking-tight;
+  }
+}
+
+@layer components {
+  .gradient-primary {
+    @apply bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-900 text-white border-none;
+  }
+  
+  .gradient-hero {
+    @apply bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-950 dark:via-background dark:to-blue-950;
+  }
+
+  .glass {
+    @apply bg-background/80 backdrop-blur-md border border-white/20 dark:border-white/10;
+  }
+
+  .premium-shadow {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+  }
+
+  .premium-card {
+    @apply rounded-none border border-border bg-card transition-all duration-500 hover:border-primary/30 hover:shadow-2xl hover:-translate-y-2;
+  }
+
+  .nav-link {
+    @apply relative text-sm font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-red-600 after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-red-600 after:transition-all hover:after:w-full;
+  }
+
+  .btn-3d {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 60%, #1e3a8a 100%);
+    @apply text-white font-black uppercase tracking-widest relative overflow-hidden transition-all duration-200;
+    box-shadow: 
+      inset 0 2px 0 rgba(255, 255, 255, 0.30),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.30),
+      0 4px 15px rgba(37, 99, 235, 0.50),
+      0 2px 6px rgba(0, 0, 0, 0.25);
+    border: 1.5px solid rgba(147, 197, 253, 0.6);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  }
+  
+  .btn-3d::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 100%);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .btn-3d:hover {
+    background: linear-gradient(180deg, #60a5fa 0%, #2563eb 60%, #1d40b0 100%);
+    transform: translateY(-1px);
+    box-shadow: 
+      inset 0 2px 0 rgba(255, 255, 255, 0.30),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.30),
+      0 8px 20px rgba(37, 99, 235, 0.55),
+      0 3px 8px rgba(0, 0, 0, 0.25);
+  }
+  
+  .btn-3d:active {
+    transform: translateY(2px);
+    box-shadow: 
+      inset 0 3px 6px rgba(0, 0, 0, 0.30),
+      0 2px 6px rgba(37, 99, 235, 0.35);
+  }
+}
+
+@layer utilities {
+  .text-primary {
+    @apply text-red-600 !important;
+  }
+  .text-blue-500 { @apply text-red-500 !important; }
+  .text-blue-600 { @apply text-red-600 !important; }
+  .text-blue-700 { @apply text-red-700 !important; }
+  .text-blue-800 { @apply text-red-800 !important; }
+  .text-blue-900 { @apply text-red-900 !important; }
+}
+
+.animate-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* WhatsApp floating button zoom in/out pulse */
+@keyframes wa-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18); }
+  60%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* ── WhatsApp Floating Button ───────────────────────── */
+.wa-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #25D366;
+  box-shadow: 0 4px 16px rgba(37,211,102,0.5);
+  animation: wa-pulse 2s ease-in-out infinite;
+  text-decoration: none;
+}
+
+/* ── Membership Card Document (html2canvas target) ── */
+.mem-doc-wrapper { position: fixed; top: -9999px; left: -9999px; z-index: -1; }
+.mem-doc { width: 595px; min-height: 420px; background: #fff; font-family: Arial, sans-serif; border: 2px solid #cc0000; border-radius: 12px; overflow: hidden; padding: 0; }
+.mem-doc-header { background: linear-gradient(135deg, #cc0000, #8b0000); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+.mem-doc-header-title { color: #fff; font-size: 18px; font-weight: bold; letter-spacing: 2px; }
+.mem-doc-header-sub { color: #ffcccc; font-size: 9px; letter-spacing: 1px; }
+.mem-doc-header-right { text-align: right; }
+.mem-doc-header-id-label { color: #fff; font-size: 10px; }
+.mem-doc-header-id-value { color: #ffd700; font-size: 14px; font-weight: bold; }
+.mem-doc-body { display: flex; padding: 20px 24px; gap: 20px; }
+.mem-doc-photo-col { flex-shrink: 0; }
+.mem-doc-photo-box { width: 100px; height: 110px; border: 2px solid #cc0000; border-radius: 6px; background: #f5f5f5; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 10px; }
+.mem-doc-photo-label { font-size: 11px; color: #999; font-style: italic; }
+.mem-doc-aadhaar-label { font-size: 9px; color: #666; margin-bottom: 4px; }
+.mem-doc-aadhaar-box { width: 100px; height: 60px; border: 1.5px solid #ccc; border-radius: 4px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
+.mem-doc-aadhaar-pic { font-size: 10px; color: #bbb; font-style: italic; }
+.mem-doc-info-col { flex: 1; }
+.mem-doc-name-row { margin-bottom: 8px; }
+.mem-doc-name { font-size: 20px; font-weight: bold; color: #1a1a1a; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+.mem-doc-address { font-size: 11px; color: #666; margin-top: 4px; }
+.mem-doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; }
+.mem-doc-field-label { color: #999; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
+.mem-doc-field-value { font-weight: 600; color: #333; }
+.mem-doc-blood { font-weight: 600; color: #cc0000; font-size: 13px; }
+.mem-doc-dl-section { margin-top: 10px; }
+.mem-doc-dl-label { font-size: 9px; color: #666; margin-bottom: 4px; }
+.mem-doc-dl-box { width: 100%; height: 36px; border: 1.5px solid #ccc; border-radius: 4px; background: #f9f9f9; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: #aaa; font-style: italic; }
+.mem-doc-txn { padding: 0 24px 12px 24px; font-size: 10px; color: #888; }
+.mem-doc-txn-bold { font-weight: bold; }
+.mem-doc-footer { background: #f8f8f8; border-top: 1px solid #eee; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; font-size: 9px; color: #999; }
+.mem-doc-sign { border: 1px solid #cc0000; border-radius: 4px; padding: 4px 16px; color: #cc0000; font-weight: bold; font-size: 10px; }
