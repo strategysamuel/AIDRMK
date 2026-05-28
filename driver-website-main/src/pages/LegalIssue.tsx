@@ -72,28 +72,49 @@ const LegalIssue = () => {
     }
   }, [user]);
 
+  const getGeolocationErrorMessage = (error: GeolocationPositionError) => {
+    if (error.code === error.PERMISSION_DENIED) {
+      return "Location permission was denied. Allow location access in your browser and try again.";
+    }
+    if (error.code === error.POSITION_UNAVAILABLE) {
+      return "Live location is unavailable. Turn on GPS/location services and try again.";
+    }
+    if (error.code === error.TIMEOUT) {
+      return "GPS timed out. Please try again outdoors or enter the location manually.";
+    }
+    return "Could not get location. Please enter manually.";
+  };
+
   const handleGetLocation = () => {
     setLocationLoading(true);
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setFormData(prev => ({
-            ...prev,
-            location: `${position.coords.latitude}, ${position.coords.longitude}`
-          }));
-          setLocationLoading(false);
-          toast.success("Location acquired automatically");
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          toast.error("Could not get location. Please enter manually.");
-          setLocationLoading(false);
-        }
-      );
-    } else {
+
+    if (!("geolocation" in navigator)) {
       toast.error("Geolocation is not supported by your browser");
       setLocationLoading(false);
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const location = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
+        setFormData(prev => ({
+          ...prev,
+          location
+        }));
+        setLocationLoading(false);
+        toast.success("Live GPS location added");
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        toast.error(getGeolocationErrorMessage(error));
+        setLocationLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 0,
+      }
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -320,24 +341,24 @@ ${formData.description}
                   </div>
                   <div>
                     <Label htmlFor="location" className="font-bold uppercase tracking-wider text-xs">Incident Location (GPS or Manual)</Label>
-                    <div className="flex gap-2 mt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 mt-1">
                       <Input 
                         id="location" 
                         placeholder="Enter location or use GPS..." 
                         value={formData.location}
                         onChange={(e) => setFormData({...formData, location: e.target.value})}
-                        className="rounded-none border-border flex-1"
+                        className="rounded-none border-border min-w-0"
                         required 
                       />
                       <Button 
                         type="button" 
                         variant="outline" 
-                        className="rounded-none whitespace-nowrap"
+                        className="rounded-none whitespace-nowrap w-full sm:w-auto"
                         onClick={handleGetLocation}
                         disabled={locationLoading}
                       >
                         <MapPin className="h-4 w-4 mr-2" />
-                        Get GPS
+                        {locationLoading ? "Getting GPS..." : "Get GPS"}
                       </Button>
                     </div>
                   </div>

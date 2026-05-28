@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, FileText, CreditCard, Gift, LogOut, ExternalLink, Clock, CheckCircle, XCircle, Upload, Trash2, Download, Pencil, Save, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MembershipCardPreview from "@/components/MembershipCardPreview";
+import { isSupportedDocumentFile, isSupportedImageFile, validateImageVisual, validateMaxFileSize } from "@/lib/fileValidation";
 
 const DriverDashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
@@ -39,10 +40,15 @@ const DriverDashboard = () => {
   useEffect(() => {
     if (user) {
       fetchDriverData();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (driverData) {
       fetchSchemesAndApplications();
       fetchDocuments();
     }
-  }, [user]);
+  }, [driverData?.id]);
 
   const fetchDriverData = async () => {
     try {
@@ -225,17 +231,37 @@ const DriverDashboard = () => {
     const file = event.target.files?.[0];
     if (!file || !driverData || !user) return;
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    if (!validateMaxFileSize(file, 5)) {
       toast.error("File size must be less than 5MB");
       return;
     }
 
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
-    if (!allowedTypes.includes(file.type)) {
+    if (!isSupportedDocumentFile(file)) {
       toast.error("Only JPG, PNG, and PDF files are allowed");
       return;
+    }
+
+    if (["aadhaar", "license", "photo", "signature"].includes(selectedDocType)) {
+      if (!isSupportedImageFile(file)) {
+        toast.error("Please upload a clear image for this document type.");
+        return;
+      }
+
+      const visualKind =
+        selectedDocType === "photo" ? "portrait" :
+        selectedDocType === "signature" ? "signature" :
+        "document";
+
+      try {
+        const isValidVisual = await validateImageVisual(file, visualKind);
+        if (!isValidVisual) {
+          toast.error("This image does not match the selected document type.");
+          return;
+        }
+      } catch {
+        toast.error("Could not read this image. Please upload a clear JPG, PNG, or WEBP.");
+        return;
+      }
     }
 
     setUploadingDoc(true);
@@ -250,19 +276,38 @@ const DriverDashboard = () => {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
+      const { data: urlData, error: signError } = await supabase.storage
         .from("driver-documents")
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 60 * 60 * 24 * 365);
+
+      if (signError || !urlData?.signedUrl) throw signError ?? new Error("Failed to create document URL");
 
       // Save document record
       const { error: dbError } = await supabase.from("documents").insert({
         driver_id: driverData.id,
         type: selectedDocType,
-        file_url: urlData.publicUrl,
+        file_url: urlData.signedUrl,
       });
 
       if (dbError) throw dbError;
+
+      if (selectedDocType === "photo") {
+        const { error: driverError } = await supabase
+          .from("drivers")
+          .update({ photo_url: urlData.signedUrl, selfie_photo_url: urlData.signedUrl } as any)
+          .eq("id", driverData.id);
+        if (driverError) throw driverError;
+        setDriverData((prev: any) => ({ ...prev, photo_url: urlData.signedUrl, selfie_photo_url: urlData.signedUrl }));
+      }
+
+      if (selectedDocType === "signature") {
+        const { error: driverError } = await supabase
+          .from("drivers")
+          .update({ signature_url: urlData.signedUrl } as any)
+          .eq("id", driverData.id);
+        if (driverError) throw driverError;
+        setDriverData((prev: any) => ({ ...prev, signature_url: urlData.signedUrl }));
+      }
 
       toast.success("Document uploaded successfully!");
       fetchDocuments();
@@ -282,7 +327,8 @@ const DriverDashboard = () => {
 
     try {
       // Extract file path from URL
-      const filePath = fileUrl.split("/driver-documents/")[1];
+      const rawPath = fileUrl.split("/driver-documents/")[1];
+      const filePath = rawPath ? decodeURIComponent(rawPath.split("?")[0]) : "";
 
       // Delete from storage
       if (filePath) {
@@ -386,6 +432,14 @@ const DriverDashboard = () => {
 
   const getDescription = (scheme: any) => {
     return language === "ta" ? scheme.description_ta : language === "hi" ? scheme.description_hi : scheme.description_en;
+  };
+
+  const getCardPhotoUrl = () => {
+    const photoDoc = documents.find((doc: any) =>
+      ["photo", "selfie", "PHOTO", "SELFIE"].includes(doc.type)
+    );
+
+    return driverData.selfie_photo_url || driverData.photo_url || photoDoc?.file_url || "";
   };
 
   if (authLoading || loading) {
@@ -672,8 +726,8 @@ const DriverDashboard = () => {
                   </CardHeader>
                   {cardVisible && (
                     <CardContent>
-                      <div className="overflow-x-auto pb-4 flex justify-center">
-                        <div id="membership-card-preview" className="min-w-[800px] bg-background">
+                      <div className="pb-4 flex justify-center">
+                        <div id="membership-card-preview" className="w-full max-w-[540px] bg-background">
                           <MembershipCardPreview
                             formData={{
                               fullName: driverData.name,
@@ -685,8 +739,9 @@ const DriverDashboard = () => {
                               mobileNo: driverData.mobile,
                               emergencyMobile: driverData.emergency_mobile || "7397641027",
                               membershipPlan: driverData.membership_plan || "basic",
+                              membershipId: driverData.membership_id,
                             }}
-                            photoUrl={documents.find((d: any) => d.type === "selfie")?.file_url}
+                            photoUrl={getCardPhotoUrl()}
                           />
                         </div>
                       </div>

@@ -12,6 +12,7 @@ interface KYCDocumentUploadProps {
   onDataExtracted?: (data: any) => void;
   isProcessing?: boolean;
   extractedBadge?: string;
+  accept?: string;
 }
 
 export const KYCDocumentUpload = ({ 
@@ -20,7 +21,8 @@ export const KYCDocumentUpload = ({
   selectedFile,
   onDataExtracted,
   isProcessing,
-  extractedBadge
+  extractedBadge,
+  accept = "image/jpeg,image/jpg,image/png,image/webp"
 }: KYCDocumentUploadProps) => {
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,29 +67,29 @@ export const KYCDocumentUpload = ({
       </div>
       
       {!selectedFile ? (
-        <div className="flex gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Button
             type="button"
             variant="outline"
-            className="flex-1"
+            className="w-full min-w-0 h-12 justify-center text-sm"
             onClick={() => fileInputRef.current?.click()}
           >
-            <Upload className="h-4 w-4 mr-2" />
-            Select from Gallery
+            <Upload className="h-4 w-4 mr-2 shrink-0" />
+            <span className="truncate">Select from Gallery</span>
           </Button>
           <Button
             type="button"
             variant="outline"
-            className="flex-1"
+            className="w-full min-w-0 h-12 justify-center text-sm"
             onClick={() => cameraInputRef.current?.click()}
           >
-            <Camera className="h-4 w-4 mr-2" />
-            Take Photo
+            <Camera className="h-4 w-4 mr-2 shrink-0" />
+            <span className="truncate">Take Photo</span>
           </Button>
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png,application/pdf"
+            accept={accept}
             onChange={handleFileChange}
             className="sr-only"
             title="Upload from gallery"
@@ -96,7 +98,7 @@ export const KYCDocumentUpload = ({
           <input
             ref={cameraInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/jpg,image/png,image/webp"
             capture="environment"
             onChange={handleFileChange}
             className="sr-only"

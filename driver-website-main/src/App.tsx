@@ -34,7 +34,7 @@ import Footer from "./components/Footer";
 const queryClient = new QueryClient();
 
 // Pages that should NOT show the header/footer (auth screens)
-const AUTH_PATHS = ["/pin-login", "/register", "/forgot-pin", "/login", "/signup", "/auth", "/driver-registration", "/admin-login", "/admin/dashboard"];
+const AUTH_PATHS = ["/pin-login", "/register", "/forgot-pin", "/login", "/signup", "/auth", "/driver-registration", "/admin", "/admin-login", "/admin/login", "/admin/dashboard"];
 
 const AppLayout = () => {
   const location = useLocation();
@@ -64,6 +64,8 @@ const AppLayout = () => {
           <Route path="/driver/dashboard" element={<ProtectedRoute><DriverDashboard /></ProtectedRoute>} />
           <Route path="/driver-dashboard" element={<ProtectedRoute><DriverDashboard /></ProtectedRoute>} />
           {/* Admin Routes - completely separate auth from customer auth */}
+          <Route path="/admin" element={<Navigate to="/admin-login" replace />} />
+          <Route path="/admin/login" element={<Navigate to="/admin-login" replace />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />

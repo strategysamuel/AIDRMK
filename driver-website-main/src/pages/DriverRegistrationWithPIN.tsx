@@ -26,6 +26,7 @@ import { PaymentStep } from "@/components/PaymentStep";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { driverRegistrationSchema } from "@/lib/validation";
 import { logoPath } from "@/lib/assets";
+import { isSupportedImageFile, validateImageVisual, validateMaxFileSize } from "@/lib/fileValidation";
 
 const DriverRegistrationWithPIN = () => {
   const [formData, setFormData] = useState({
@@ -98,15 +99,23 @@ const DriverRegistrationWithPIN = () => {
   // KYC extraction — edge functions not deployed, skip silently
   const extractKYCData = async (_file: File, _documentType: 'AADHAAR' | 'DRIVING_LICENSE') => { return; };
 
-  const validateDocument = (file: File, name: string): boolean => {
-    const isImage = file.type ? file.type.startsWith("image/") : /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
-    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
-    if (!isImage && !isPdf) {
-      toast.error(`Invalid ${name} file type. Please upload JPG, PNG, or PDF.`);
+  const validateDocument = async (file: File, name: string): Promise<boolean> => {
+    if (!isSupportedImageFile(file)) {
+      toast.error(`Please upload a clear ${name} image. JPG, PNG, or WEBP only.`);
       return false;
     }
-    if (file.size > 10 * 1024 * 1024) {
+    if (!validateMaxFileSize(file, 10)) {
       toast.error(`${name} file size must be less than 10MB.`);
+      return false;
+    }
+    try {
+      const looksLikeDocument = await validateImageVisual(file, "document");
+      if (!looksLikeDocument) {
+        toast.error(`This does not look like a ${name}. Please attach a clear ${name} photo.`);
+        return false;
+      }
+    } catch {
+      toast.error(`Could not read the ${name} image. Please attach a clear JPG, PNG, or WEBP.`);
       return false;
     }
     return true;
@@ -114,7 +123,7 @@ const DriverRegistrationWithPIN = () => {
 
   const handleAadhaarFileSelect = async (file: File | null) => {
     if (!file) { setAadhaarFile(null); return; }
-    if (!validateDocument(file, 'Aadhaar Card')) return;
+    if (!(await validateDocument(file, 'Aadhaar Card'))) return;
     setAadhaarFile(file);
     setProcessingAadhaar(true);
     extractKYCData(file, 'AADHAAR').finally(() => setProcessingAadhaar(false));
@@ -122,20 +131,26 @@ const DriverRegistrationWithPIN = () => {
 
   const handleDLFileSelect = async (file: File | null) => {
     if (!file) { setDlFile(null); return; }
-    if (!validateDocument(file, 'Driving License')) return;
+    if (!(await validateDocument(file, 'Driving License'))) return;
     setDlFile(file);
     setProcessingDL(true);
     extractKYCData(file, 'DRIVING_LICENSE').finally(() => setProcessingDL(false));
   };
 
-  const isSupportedImageFile = (file: File) => {
-    if (file.type) return file.type.startsWith("image/");
-    return /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
-  };
-
-  const handleSelfieSelect = (file: File) => {
+  const handleSelfieSelect = async (file: File) => {
     if (!isSupportedImageFile(file)) { toast.error("Please upload or capture an image file."); return; }
-    if (file.size > 10 * 1024 * 1024) { toast.error("Photo must be less than 10MB."); return; }
+    if (!validateMaxFileSize(file, 10)) { toast.error("Photo must be less than 10MB."); return; }
+    let isPortrait = false;
+    try {
+      isPortrait = await validateImageVisual(file, "portrait");
+    } catch {
+      toast.error("Could not read the photo. Please attach a clear JPG, PNG, or WEBP.");
+      return;
+    }
+    if (!isPortrait) {
+      toast.error("Please attach a clear passport photo or selfie, not another document.");
+      return;
+    }
     setSelfieFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setSelfiePreview(reader.result as string);
@@ -143,9 +158,20 @@ const DriverRegistrationWithPIN = () => {
   };
   const clearSelfie = () => { setSelfieFile(null); setSelfiePreview(""); };
 
-  const handleSignatureSelect = (file: File) => {
+  const handleSignatureSelect = async (file: File) => {
     if (!isSupportedImageFile(file)) { toast.error("Please upload or capture an image file."); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Signature must be less than 5MB."); return; }
+    if (!validateMaxFileSize(file, 5)) { toast.error("Signature must be less than 5MB."); return; }
+    let isSignature = false;
+    try {
+      isSignature = await validateImageVisual(file, "signature");
+    } catch {
+      toast.error("Could not read the signature image. Please attach a clear JPG, PNG, or WEBP.");
+      return;
+    }
+    if (!isSignature) {
+      toast.error("Please attach a clear signature image.");
+      return;
+    }
     setSignatureFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setSignaturePreview(reader.result as string);
@@ -321,9 +347,12 @@ const DriverRegistrationWithPIN = () => {
     await supabase.from('documents').insert([
       { driver_id: driverId, type: 'DRIVING_LICENSE', file_url: dlUrl },
       { driver_id: driverId, type: 'AADHAAR', file_url: aadhaarUrl },
+      ...(selfieUrl ? [{ driver_id: driverId, type: 'PHOTO', file_url: selfieUrl }] : []),
+      ...(signatureUrl ? [{ driver_id: driverId, type: 'SIGNATURE', file_url: signatureUrl }] : []),
     ]);
     await supabase.from('drivers').update({
       selfie_photo_url: selfieUrl || null,
+      photo_url: selfieUrl || null,
       signature_url: signatureUrl || null,
       kyc_status: 'submitted',
       accepted_at: new Date().toISOString(),
@@ -473,7 +502,7 @@ const DriverRegistrationWithPIN = () => {
               {/* Selfie */}
               <div className="space-y-4">
                 <div className="border-b pb-2">
-                  <h3 className="font-semibold text-lg">{tPage("registration.selfiePhoto", language)}</h3>
+                  <h3 className="font-semibold text-lg">Passport Photo / Selfie</h3>
                   <p className="text-sm text-muted-foreground">{tPage("registration.selfiePhotoDesc", language)}</p>
                 </div>
                 {selfiePreview ? (
@@ -589,12 +618,14 @@ const DriverRegistrationWithPIN = () => {
                 <div className="space-y-2">
                   <Label>{tPage("registration.aadhaarCard", language)}</Label>
                   <KYCDocumentUpload label="" onFileSelect={handleAadhaarFileSelect}
-                    selectedFile={aadhaarFile} isProcessing={processingAadhaar} />
+                    selectedFile={aadhaarFile} isProcessing={processingAadhaar}
+                    accept="image/jpeg,image/jpg,image/png,image/webp" />
                 </div>
                 <div className="space-y-2">
                   <Label>{tPage("registration.drivingLicense", language)}</Label>
                   <KYCDocumentUpload label="" onFileSelect={handleDLFileSelect}
-                    selectedFile={dlFile} isProcessing={processingDL} />
+                    selectedFile={dlFile} isProcessing={processingDL}
+                    accept="image/jpeg,image/jpg,image/png,image/webp" />
                 </div>
               </div>
 
@@ -773,16 +804,16 @@ const DriverRegistrationWithPIN = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input id="signature-upload-input" type="file" accept="image/*" className="sr-only" title="Upload signature"
                       onChange={e => { const f = e.target.files?.[0]; if (f) handleSignatureSelect(f); e.currentTarget.value = ""; }} />
                     <input id="signature-camera-input" type="file" accept="image/*" capture="environment" className="sr-only" title="Take signature photo"
                       onChange={e => { const f = e.target.files?.[0]; if (f) handleSignatureSelect(f); e.currentTarget.value = ""; }} />
-                    <Button type="button" variant="outline" className="flex-1"
+                    <Button type="button" variant="outline" className="w-full h-12"
                       onClick={() => document.getElementById("signature-upload-input")?.click()}>
                       <Upload className="h-4 w-4 mr-2" />{language === 'ta' ? 'பதிவேற்றவும்' : language === 'hi' ? 'अपलोड करें' : 'Upload'}
                     </Button>
-                    <Button type="button" variant="outline" className="flex-1"
+                    <Button type="button" variant="outline" className="w-full h-12"
                       onClick={() => document.getElementById("signature-camera-input")?.click()}>
                       <Camera className="h-4 w-4 mr-2" />{language === 'ta' ? 'படம் எடுக்கவும்' : language === 'hi' ? 'फोटो लें' : 'Take Photo'}
                     </Button>
