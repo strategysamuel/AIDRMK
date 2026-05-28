@@ -2,14 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check, Star, Crown } from "lucide-react";
-import idCardFront from "@/assets/id-card-front.png";
-import idCardBack from "@/assets/id-card-back.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { tPage } from "@/translations/all-pages";
+import { assetPath } from "@/lib/assets";
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+
+const idCardFront = assetPath("id-card-front.png");
+const idCardBack = assetPath("id-card-back.png");
 
 const Membership = () => {
   const { language } = useLanguage();

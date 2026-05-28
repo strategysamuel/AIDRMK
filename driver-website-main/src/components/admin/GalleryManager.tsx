@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Upload, Image as ImageIcon } from "lucide-react";
 import { broadcastContentChange, subscribeToContentChanges } from "@/lib/contentSync";
+import { normalizePublicImageUrl } from "@/lib/assets";
 
 // gallery_items is a custom table not in the generated types, so use an untyped client.
 const db = supabase as any;
@@ -39,7 +40,10 @@ export function GalleryManager() {
         .select("*")
         .order("created_at", { ascending: false });
       if (error && error.code !== "42P01") throw error;
-      setItems(data || []);
+      setItems((data || []).map((item: any) => ({
+        ...item,
+        image_url: normalizePublicImageUrl(item.image_url),
+      })));
     } catch (e: any) {
       console.error("Gallery fetch error:", e);
     } finally {
@@ -62,8 +66,9 @@ export function GalleryManager() {
   const openDialog = (item: any = null) => {
     if (item) {
       setEditingItem(item);
-      setFormData({ title_en: item.title_en, description_en: item.description_en || "", image_url: item.image_url });
-      setPreviewUrl(item.image_url);
+      const imageUrl = normalizePublicImageUrl(item.image_url);
+      setFormData({ title_en: item.title_en, description_en: item.description_en || "", image_url: imageUrl });
+      setPreviewUrl(imageUrl);
     } else {
       setEditingItem(null);
       setFormData({ title_en: "", description_en: "", image_url: "" });
@@ -140,7 +145,7 @@ export function GalleryManager() {
               <TableRow key={item.id} className="hover:bg-gray-50">
                 <TableCell>
                   {item.image_url ? (
-                    <img src={item.image_url} alt={item.title_en} className="w-16 h-16 object-cover rounded-xl border border-gray-100" />
+                    <img src={normalizePublicImageUrl(item.image_url)} alt={item.title_en} className="w-16 h-16 object-cover rounded-xl border border-gray-100" />
                   ) : (
                     <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center">
                       <ImageIcon className="h-5 w-5 text-gray-400" />
@@ -179,7 +184,7 @@ export function GalleryManager() {
                 className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-red-400 hover:bg-red-50/30 transition-colors block"
               >
                 {previewUrl ? (
-                  <img src={previewUrl} alt="Preview" className="w-full h-40 object-cover rounded-lg mx-auto" />
+                  <img src={normalizePublicImageUrl(previewUrl)} alt="Preview" className="w-full h-40 object-cover rounded-lg mx-auto" />
                 ) : (
                   <div className="flex flex-col items-center gap-2 py-4">
                     <Upload className="h-8 w-8 text-gray-400" />

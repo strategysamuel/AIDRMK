@@ -4,16 +4,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Scale, Heart, Users, GraduationCap, Truck, Car, Bus, Shield, Phone, Mail, MapPin, CheckCircle2, TrendingUp, Award, FileText } from "lucide-react";
 import ServiceCard from "@/components/ServiceCard";
 import TestimonialCard from "@/components/TestimonialCard";
-import driverHero1 from "@/assets/legal_help_driver.png";
-import driverHero2 from "@/assets/community_support_driver.png";
-import driverHero3 from "@/assets/welfare_benefits_driver.png";
-import cityscapeOutline from "@/assets/cityscape-outline.png";
-import testimonialDriver from "@/assets/testimonial-driver.jpg";
-import eshramLogo from "@/assets/eshram-logo.png";
-import carLegal from "@/assets/car-legal.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { tPage } from "@/translations/all-pages";
 import { useAuth } from "@/contexts/AuthContext";
+import { assetPath } from "@/lib/assets";
+
+const driverHero1 = assetPath("legal_help_driver.png");
+const driverHero2 = assetPath("community_support_driver.png");
+const driverHero3 = assetPath("welfare_benefits_driver.png");
+const cityscapeOutline = assetPath("cityscape-outline.png");
+const eshramLogo = assetPath("eshram-logo.png");
+const carLegal = assetPath("car-legal.png");
 
 const Index = () => {
   const { language } = useLanguage();

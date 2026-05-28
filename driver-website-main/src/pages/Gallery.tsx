@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { tPage } from "@/translations/all-pages";
 import { supabase } from "@/integrations/supabase/client";
 import { subscribeToContentChanges } from "@/lib/contentSync";
+import { galleryPath, normalizePublicImageUrl } from "@/lib/assets";
 
 const Gallery = () => {
   const { language } = useLanguage();
@@ -17,14 +18,14 @@ const Gallery = () => {
 
   const fetchGallery = async () => {
     const staticEvents = [
-      { id: 's1', image_url: '/src/assets/gallery/eye-checkup.png', title_en: tPage("gallery.event1Title", language), description_en: tPage("gallery.event1Desc", language), created_at: new Date('2023-01-15').toISOString() },
-      { id: 's2', image_url: '/src/assets/gallery/community-meeting.png', title_en: tPage("gallery.event2Title", language), description_en: tPage("gallery.event2Desc", language), created_at: new Date('2023-02-20').toISOString() },
-      { id: 's3', image_url: '/src/assets/gallery/conference-event.png', title_en: tPage("gallery.event3Title", language), description_en: tPage("gallery.event3Desc", language), created_at: new Date('2023-03-10').toISOString() },
-      { id: 's4', image_url: '/src/assets/gallery/public-assistance.png', title_en: tPage("gallery.event4Title", language), description_en: tPage("gallery.event4Desc", language), created_at: new Date('2023-04-05').toISOString() },
-      { id: 's5', image_url: '/src/assets/gallery/leadership-meeting.png', title_en: tPage("gallery.event5Title", language), description_en: tPage("gallery.event5Desc", language), created_at: new Date('2023-05-12').toISOString() },
-      { id: 's6', image_url: '/src/assets/gallery/auto-drivers.png', title_en: tPage("gallery.event6Title", language), description_en: tPage("gallery.event6Desc", language), created_at: new Date('2023-06-18').toISOString() },
-      { id: 's7', image_url: '/src/assets/gallery/driver-team.png', title_en: tPage("gallery.event7Title", language), description_en: tPage("gallery.event7Desc", language), created_at: new Date('2023-07-22').toISOString() },
-      { id: 's8', image_url: '/src/assets/gallery/eye-testing.png', title_en: tPage("gallery.event8Title", language), description_en: tPage("gallery.event8Desc", language), created_at: new Date('2023-08-30').toISOString() },
+      { id: 's1', image_url: galleryPath('eye-checkup.png'), title_en: tPage("gallery.event1Title", language), description_en: tPage("gallery.event1Desc", language), created_at: new Date('2023-01-15').toISOString() },
+      { id: 's2', image_url: galleryPath('community-meeting.png'), title_en: tPage("gallery.event2Title", language), description_en: tPage("gallery.event2Desc", language), created_at: new Date('2023-02-20').toISOString() },
+      { id: 's3', image_url: galleryPath('conference-event.png'), title_en: tPage("gallery.event3Title", language), description_en: tPage("gallery.event3Desc", language), created_at: new Date('2023-03-10').toISOString() },
+      { id: 's4', image_url: galleryPath('public-assistance.png'), title_en: tPage("gallery.event4Title", language), description_en: tPage("gallery.event4Desc", language), created_at: new Date('2023-04-05').toISOString() },
+      { id: 's5', image_url: galleryPath('leadership-meeting.png'), title_en: tPage("gallery.event5Title", language), description_en: tPage("gallery.event5Desc", language), created_at: new Date('2023-05-12').toISOString() },
+      { id: 's6', image_url: galleryPath('auto-drivers.png'), title_en: tPage("gallery.event6Title", language), description_en: tPage("gallery.event6Desc", language), created_at: new Date('2023-06-18').toISOString() },
+      { id: 's7', image_url: galleryPath('driver-team.png'), title_en: tPage("gallery.event7Title", language), description_en: tPage("gallery.event7Desc", language), created_at: new Date('2023-07-22').toISOString() },
+      { id: 's8', image_url: galleryPath('eye-testing.png'), title_en: tPage("gallery.event8Title", language), description_en: tPage("gallery.event8Desc", language), created_at: new Date('2023-08-30').toISOString() },
     ];
 
     try {
@@ -36,7 +37,10 @@ const Gallery = () => {
       
       if (error && error.code !== "42P01") throw error;
       
-      const combinedData = [...(data || []), ...staticEvents];
+      const combinedData = [...(data || []), ...staticEvents].map((item) => ({
+        ...item,
+        image_url: normalizePublicImageUrl(item.image_url),
+      }));
       setGalleryImages(combinedData);
     } catch (e) {
       console.error(e);
@@ -73,7 +77,7 @@ const Gallery = () => {
               <Card key={item.id} className="overflow-hidden hover:shadow-xl transition-shadow">
                 <div className="aspect-video overflow-hidden">
                   <img 
-                    src={item.image_url} 
+                    src={normalizePublicImageUrl(item.image_url)} 
                     alt={item.title_en} 
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />

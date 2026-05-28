@@ -11,6 +11,7 @@ import { tPage } from "@/translations/all-pages";
 import { KeyRound, Phone } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { pinLoginSchema } from "@/lib/validation";
+import { logoPath } from "@/lib/assets";
 
 const PINLogin = () => {
   const [mobile, setMobile] = useState("");
@@ -87,7 +88,7 @@ const PINLogin = () => {
             <div className="flex justify-center mb-1">
               <div className="h-20 w-20 border-2 border-primary/20 flex items-center justify-center bg-background rounded-xl shadow-inner overflow-hidden p-1">
                 <img 
-                  src="/src/assets/gallery/flag-logo.jpeg" 
+                  src={logoPath} 
                   alt="Logo" 
                   className="h-full w-full object-contain"
                 />

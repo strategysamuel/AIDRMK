@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import padmanabhan from "@/assets/padmanabhan.png";
-import flagLogo from "@/assets/flag-logo.png";
+import { assetPath, logoPath } from "@/lib/assets";
+
+const padmanabhan = assetPath("padmanabhan.png");
+const flagLogo = logoPath;
 
 interface MembershipCardPreviewProps {
   formData: {

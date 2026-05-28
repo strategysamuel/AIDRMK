@@ -25,6 +25,7 @@ import MembershipCardPreview from "@/components/MembershipCardPreview";
 import { PaymentStep } from "@/components/PaymentStep";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { driverRegistrationSchema } from "@/lib/validation";
+import { logoPath } from "@/lib/assets";
 
 const DriverRegistrationWithPIN = () => {
   const [formData, setFormData] = useState({
@@ -460,7 +461,7 @@ const DriverRegistrationWithPIN = () => {
           <CardHeader className="space-y-4">
             <div className="flex justify-center">
               <div className="h-24 w-24 border-2 border-primary/20 flex items-center justify-center bg-background rounded-2xl shadow-xl overflow-hidden p-1">
-                <img src="/src/assets/gallery/flag-logo.jpeg" alt="Logo" className="h-full w-full object-contain" />
+                <img src={logoPath} alt="Logo" className="h-full w-full object-contain" />
               </div>
             </div>
             <CardTitle className="text-3xl font-bold text-center">{tPage("registration.title", language)}</CardTitle>

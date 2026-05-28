@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, ShieldCheck, User, Phone, Mail, Lock, AlertCircle } from "lucide-react";
-import flagLogo from "@/assets/gallery/flag-logo.jpeg";
+import { logoPath } from "@/lib/assets";
 
 // Admin credentials - hardcoded, never displayed in UI
 const ADMIN_CREDENTIALS = {
@@ -71,7 +71,7 @@ const AdminLogin = () => {
             <div className="flex items-center justify-center mb-4">
               <div className="relative">
                 <div className="h-20 w-20 rounded-2xl border-2 border-red-400/40 bg-white/10 backdrop-blur flex items-center justify-center overflow-hidden shadow-xl">
-                  <img src={flagLogo} alt="AIDRMK" className="h-full w-full object-contain" />
+                  <img src={logoPath} alt="AIDRMK" className="h-full w-full object-contain" />
                 </div>
                 <div className="absolute -bottom-2 -right-2 h-7 w-7 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
                   <ShieldCheck className="h-4 w-4 text-white" />

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, Smartphone, Building, ShieldCheck, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { logoPath } from "@/lib/assets";
 
 interface PaymentStepProps {
   amount: number;
@@ -39,7 +40,7 @@ export const PaymentStep = ({ amount, onPaymentSuccess, onBack, language }: Paym
       currency: "INR",
       name: "AIDRMK",
       description: "Membership Registration",
-      image: "/src/assets/gallery/flag-logo.jpeg",
+      image: logoPath,
       handler: function (response: any) {
         onPaymentSuccess();
         setLoading(false);

@@ -4,9 +4,11 @@ import { Link } from "react-router-dom";
 import { Target, Eye, Users, Award } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { tPage } from "@/translations/all-pages";
-import padmanabhan from "@/assets/padmanabhan.png";
-import aboutBanner from "@/assets/about-banner.png";
 import { useAuth } from "@/contexts/AuthContext";
+import { assetPath } from "@/lib/assets";
+
+const padmanabhan = assetPath("padmanabhan.png");
+const aboutBanner = assetPath("about-banner.png");
 
 const About = () => {
   const { language } = useLanguage();

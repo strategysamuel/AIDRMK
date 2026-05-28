@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { t } from "@/translations";
 import LanguageToggle from "./LanguageToggle";
-import flagLogo from "@/assets/gallery/flag-logo.jpeg";
+import { logoPath } from "@/lib/assets";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -98,7 +98,7 @@ const Header = () => {
       <div className="container mx-auto flex h-20 items-center justify-between px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3" onClick={() => window.scrollTo(0, 0)}>
-          <img src={flagLogo} alt="AIDRMK Logo" className="h-10 w-auto" />
+          <img src={logoPath} alt="AIDRMK Logo" className="h-10 w-auto" />
           <span className="text-2xl font-serif font-bold text-primary uppercase tracking-wider">AIDRMK</span>
         </Link>
 

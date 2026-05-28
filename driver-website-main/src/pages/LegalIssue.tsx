@@ -7,16 +7,17 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "react-router-dom";
 import { Scale, FileText, Car, AlertCircle, CheckCircle, MapPin, Upload } from "lucide-react";
-import carLegal from "@/assets/car-legal.png";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { tPage } from "@/translations/all-pages";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { assetPath } from "@/lib/assets";
 
 const WEB3FORMS_ACCESS_KEY = "317454c1-593f-46a4-a8f5-2ac4c7ad8910";
 const ADMIN_EMAIL = "allindiadriversmunetrakazhagam@driverwelfare.com";
+const carLegal = assetPath("car-legal.png");
 
 const LegalIssue = () => {
   const { language } = useLanguage();

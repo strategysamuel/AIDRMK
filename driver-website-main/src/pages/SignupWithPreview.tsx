@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Link, useNavigate } from "react-router-dom";
 import { Smartphone, Lock, CheckCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import flagLogo from "@/assets/flag-logo.png";
+import { logoPath } from "@/lib/assets";
 
 const SignupWithPreview = () => {
   const { language } = useLanguage();
@@ -24,7 +24,7 @@ const SignupWithPreview = () => {
       <div className="w-full max-w-3xl">
         <div className="text-center pb-12">
           <Link to="/" className="flex items-center justify-center gap-3 mb-8">
-            <img src={flagLogo} alt="AIDRMK Logo" className="h-12 w-auto" />
+            <img src={logoPath} alt="AIDRMK Logo" className="h-12 w-auto" />
             <span className="text-3xl font-serif font-bold text-primary uppercase tracking-wider">AIDRMK</span>
           </Link>
           <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4 text-foreground">
